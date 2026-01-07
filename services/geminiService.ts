@@ -20,11 +20,13 @@ export const getGeminiInsights = async (resume: string, jd: string, missingKeywo
   `;
 
   try {
+    // Initializing Gemini client right before use as per guidelines
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt,
     });
+    // Accessing .text as a property, not a method
     return response.text;
   } catch (error) {
     console.error("Gemini Insights Error:", error);
@@ -43,8 +45,9 @@ export const getInterviewTraps = async (missingKeywords: string[], jd: string) =
 
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Upgrade to gemini-3-pro-preview for complex reasoning (interview question prediction)
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -108,8 +111,9 @@ export const getLearningPathway = async (skill: string) => {
 
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // Upgrade to gemini-3-pro-preview for complex reasoning (learning pathway generation)
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -179,6 +183,7 @@ export const rewriteBulletPoint = async (bullet: string, targetKeyword: string, 
       model: 'gemini-3-flash-preview',
       contents: prompt,
     });
+    // Property access .text instead of method call .text()
     return response.text?.trim() || "Failed to rewrite.";
   } catch (error) {
     console.error("Gemini Rewrite Error:", error);

@@ -5,6 +5,7 @@ import KeywordBadge from './KeywordBadge';
 import { getInterviewTraps, getLearningPathway } from '../services/geminiService';
 import { useUser } from '../context/UserContext';
 import Tooltip from './Tooltip';
+import PremiumLab from './PremiumLab';
 
 interface AnalysisViewProps {
   analysis: AnalysisSummary;
@@ -405,6 +406,10 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, resume, jd, onVie
             </div>
           </div>
         )}
+
+        <div className="lg:col-span-2">
+          <PremiumLab jd={jd} resume={resume} />
+        </div>
       </div>
     </div>
   );
