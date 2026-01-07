@@ -22,6 +22,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, resume, jd, onVie
   const [loadingPathways, setLoadingPathways] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [freePreviewIds, setFreePreviewIds] = useState<string[]>([]);
+  const [activeFixingSkill, setActiveFixingSkill] = useState<string | null>(null);
 
   const jdHash = jd.length + jd.substring(0, 50);
 
@@ -53,6 +54,20 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, resume, jd, onVie
     const result = await getInterviewTraps(missing, jd);
     setTraps(result);
     setLoadingTraps(false);
+  };
+
+  const fetchSpecificPathway = async (skill: string) => {
+    setActiveFixingSkill(skill);
+    try {
+      const path = await getLearningPathway(skill);
+      if (path) {
+        onViewPathways([path]);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActiveFixingSkill(null);
+    }
   };
 
   const fetchPathways = async () => {
@@ -307,11 +322,11 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, resume, jd, onVie
             <table className="w-full text-left border-collapse min-w-[800px] table-fixed">
               <thead>
                 <tr className="bg-white text-slate-400 text-[9px] uppercase tracking-[0.3em] font-black border-b border-slate-100">
-                  <th className="px-8 py-4 w-[40%]">Industry Term</th>
+                  <th className="px-8 py-4 w-[35%]">Industry Term</th>
                   <th className="px-4 py-4 w-[15%]">Type</th>
                   <th className="px-4 py-4 w-[15%] text-center">Priority</th>
                   <th className="px-4 py-4 w-[15%] text-center">Density</th>
-                  <th className="px-8 py-4 w-[15%] text-right whitespace-nowrap">Verification</th>
+                  <th className="px-8 py-4 w-[20%] text-right whitespace-nowrap">Recovery / Fix</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -319,6 +334,7 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, resume, jd, onVie
                   const locked = isLocked(res);
                   const isCritical = res.significance === SignificanceLevel.CRITICAL;
                   const isMissing = res.status === MatchStatus.MISSING;
+                  const isFixingThis = activeFixingSkill === res.text;
                   
                   let thermalEffect = "";
                   let textEffect = "text-slate-900";
@@ -369,6 +385,19 @@ const AnalysisView: React.FC<AnalysisViewProps> = ({ analysis, resume, jd, onVie
                             className="px-3 py-1.5 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-slate-900 transition-all active:scale-95 shadow-sm"
                           >
                             Unlock
+                          </button>
+                        ) : isMissing ? (
+                          <button 
+                            onClick={() => fetchSpecificPathway(res.text)}
+                            disabled={!!activeFixingSkill}
+                            className={`px-3 py-1.5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-indigo-600 transition-all active:scale-95 shadow-sm inline-flex items-center gap-2 ${isFixingThis ? 'animate-pulse opacity-50' : ''}`}
+                          >
+                            {isFixingThis ? 'Mapping...' : (
+                              <>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                                Fix Gap
+                              </>
+                            )}
                           </button>
                         ) : (
                           <KeywordBadge type={res.status} size="sm" />

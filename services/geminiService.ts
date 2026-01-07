@@ -75,24 +75,26 @@ export const getLearningPathway = async (skill: string) => {
     Create a "High-Velocity Edge Plan". 
     
     CRITICAL MANDATE: 
-    1. Project Ideas must be FUN, BOOTCAMP-STYLE, and HIGHLY DEMONSTRABLE (e.g., "Build a CLI Pokédex", "Automate Tinder Swiping", "Personal Portfolio API"). NO DRY ENTERPRISE FILLER.
+    1. Project Ideas must be FUN, BOOTCAMP-STYLE, and HIGHLY DEMONSTRABLE. NO DRY ENTERPRISE FILLER.
     2. Users do not have time for long courses. All recommended resources MUST be under 5 hours.
     3. Conservative "timeEstimate" (e.g., "4-6 Hours").
 
     Requirements:
-    1. A "Weekend Sprint" project idea (under 15 words).
-    2. "timeEstimate": A conservative range for a focused session.
-    3. "futureResumeBullet": The power bullet they can use after.
-    4. "resources": A list of 4 items (2 Free, 2 Paid):
+    1. "projectTitle": A professional, technical name for this project (e.g., "Distributed Ledger Simulation", "Automated Sentiment Engine").
+    2. A "Weekend Sprint" project idea (under 15 words).
+    3. "timeEstimate": A conservative range for a focused session.
+    4. "futureResumeBullet": The power bullet they can use after.
+    5. "resources": A list of 4 items (2 Free, 2 Paid):
        - Items must be high-impact (crash courses, masterclasses).
        - For Paid items, include "investmentLevel": "$" (cheap), "$$" (mid), or "$$$" (premium).
        - Include "duration": e.g. "45m", "2h".
-    5. "fieldGuide": Recommend a short, practical "Field Guide" (book or digital guide) that focused on interview terminology.
-    6. "valueProposition": Why recruiters care.
-    7. "interviewTalkingPoints": 2-3 specific "Ammunition" scripts.
+    6. "fieldGuide": Recommend a short, practical "Field Guide" (book or digital guide) that focused on interview terminology.
+    7. "valueProposition": Why recruiters care.
+    8. "interviewTalkingPoints": 2-3 specific "Ammunition" scripts.
 
     Return JSON: { 
       "skill": string, 
+      "projectTitle": string,
       "projectIdea": string, 
       "timeEstimate": string,
       "difficulty": string, 
@@ -115,6 +117,7 @@ export const getLearningPathway = async (skill: string) => {
           type: Type.OBJECT,
           properties: {
             skill: { type: Type.STRING },
+            projectTitle: { type: Type.STRING },
             projectIdea: { type: Type.STRING },
             timeEstimate: { type: Type.STRING },
             difficulty: { type: Type.STRING },
@@ -151,7 +154,7 @@ export const getLearningPathway = async (skill: string) => {
               required: ["title", "author", "amazonUrl", "whyItWorks"]
             }
           },
-          required: ["skill", "projectIdea", "timeEstimate", "difficulty", "futureResumeBullet", "valueProposition", "interviewTalkingPoints", "resources"]
+          required: ["skill", "projectTitle", "projectIdea", "timeEstimate", "difficulty", "futureResumeBullet", "valueProposition", "interviewTalkingPoints", "resources"]
         }
       }
     });

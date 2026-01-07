@@ -26,7 +26,6 @@ export interface Plan {
   durationHours: number;
 }
 
-// Define the ResumeProfile interface used for managing multiple resume versions
 export interface ResumeProfile {
   id: string;
   name: string;
@@ -47,6 +46,7 @@ export interface LearningResource {
 export interface LearningPathway {
   id?: string;
   skill: string;
+  projectTitle: string;
   projectIdea: string;
   timeEstimate: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
