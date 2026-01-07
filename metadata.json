@@ -1,0 +1,5 @@
+{
+  "name": "Clarify - Resume & JD Analyzer",
+  "description": "A high-performance ATS keyword matcher and resume analyzer built with React and Tailwind CSS. It features deterministic parsing, score calculation, and optional AI-powered gap analysis.",
+  "requestFramePermissions": []
+}
