@@ -35,12 +35,12 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
         <div className="max-w-3xl space-y-4">
           <button 
             onClick={onBack}
-            className="group flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors"
+            className="group flex items-center gap-3 px-6 py-3 bg-slate-900 text-white text-[11px] font-black uppercase tracking-[0.2em] rounded-2xl hover:bg-indigo-600 transition-all active:scale-95 shadow-xl"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="group-hover:-translate-x-1 transition-transform"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            Back to Report
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" className="group-hover:-translate-x-1 transition-transform"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            Back to Scan Results
           </button>
-          <h2 className="text-7xl font-black text-slate-950 tracking-tighter leading-[0.85]">
+          <h2 className="text-7xl font-black text-slate-950 tracking-tighter leading-[0.85] pt-4">
             Cultivate Your <br/> <span className="text-indigo-600">Competitive Edge.</span>
           </h2>
           <p className="text-slate-500 text-xl font-medium">
@@ -215,9 +215,10 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
       <div className="pt-20 border-t border-slate-200 text-center">
          <button 
            onClick={onBack}
-           className="px-16 py-8 bg-slate-950 text-white rounded-[2.5rem] font-black text-2xl tracking-tight shadow-[0_30px_60px_-15px_rgba(15,23,42,0.4)] hover:-translate-y-2 transition-all active:scale-95"
+           className="px-16 py-8 bg-slate-950 text-white rounded-[2.5rem] font-black text-2xl tracking-tight shadow-[0_30px_60px_-15px_rgba(15,23,42,0.4)] hover:-translate-y-2 transition-all active:scale-95 flex items-center gap-4 mx-auto"
          >
-           Back to My Forensic Audit
+           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+           Back to My Results
          </button>
       </div>
     </div>
