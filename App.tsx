@@ -121,12 +121,21 @@ const AppContent: React.FC = () => {
           setState(prev => ({ ...prev, error: "An error occurred during analysis.", isAnalyzing: false }));
         }
       }
-    }, 250);
+    }, 400); // Slightly slower for better effect with laser
   }, [state.resume, state.jobDescription]);
 
   const resetToInput = () => {
     setView('input');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleBackNavigation = () => {
+    if (view === 'pathway') {
+      setView('report');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (view === 'report') {
+      resetToInput();
+    }
   };
 
   const showPathways = (data: LearningPathway[]) => {
@@ -175,38 +184,56 @@ const AppContent: React.FC = () => {
   );
 
   return (
-    <div className="relative min-h-screen bg-[#F8FAFC] font-sans text-slate-900 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#F8FAFC] font-sans text-slate-900">
       <CheckoutModal />
 
       <div className="fixed top-0 left-0 w-full h-[600px] bg-gradient-to-b from-indigo-50/40 via-white to-transparent -z-10" />
       
-      <header className="bg-white/70 backdrop-blur-xl border-b border-slate-200 sticky top-0 z-50 h-16 flex items-center">
+      <header className="fixed top-0 left-0 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 z-[100] h-16 flex items-center">
         <div className="max-w-6xl mx-auto px-4 w-full flex items-center justify-between">
-          <div className="flex items-center gap-2.5 cursor-pointer group" onClick={resetToInput}>
-            <div className="bg-slate-900 text-white p-2 rounded-xl group-hover:bg-indigo-600 transition-colors">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6"/><path d="M9 17h3"/></svg>
+          <div className="flex items-center gap-8">
+            {/* Identity Group */}
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={resetToInput}>
+              <div className="bg-slate-900 text-white p-2 rounded-xl group-hover:bg-indigo-600 transition-colors">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6"/><path d="M9 17h3"/></svg>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-black tracking-tight text-slate-900">Clarify</span>
+                <span className="text-indigo-600 italic font-medium text-lg">{isPro ? 'Pro' : 'Pass'}</span>
+              </div>
             </div>
-            <h1 className="text-xl font-black tracking-tight flex items-center gap-2 text-slate-900">
-              Clarify {isPro ? <span className="bg-emerald-500 text-white text-[9px] px-2 py-0.5 rounded-lg uppercase tracking-widest shadow-sm">Pro</span> : <span className="text-indigo-600 italic font-medium">Pass</span>}
-            </h1>
+
+            {/* Consolidated Back Button */}
+            {view !== 'input' && (
+              <button 
+                onClick={handleBackNavigation} 
+                className="group flex items-center gap-2.5 text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-100 bg-white px-5 py-2.5 rounded-2xl hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-95 shadow-sm"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" className="group-hover:-translate-x-1 transition-transform"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                {view === 'pathway' ? 'Back to Analysis' : 'Back to Scan'}
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-6">
-            {!isPro && (
-              <button onClick={() => triggerCheckout("pro_24h")} className="text-[10px] font-black text-white bg-slate-900 uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-indigo-600 transition-all shadow-xl shadow-slate-200">
-                Get 24h Pass — $5
+            {!isPro ? (
+              <button 
+                onClick={() => triggerCheckout("pro_24h")} 
+                className="text-[10px] font-black text-white bg-indigo-600 uppercase tracking-widest px-7 py-3 rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95"
+              >
+                Unlock Pro Pass — $5
               </button>
-            )}
-            {view !== 'input' && (
-              <button onClick={resetToInput} className="text-[10px] font-black text-slate-500 uppercase tracking-widest border border-slate-200 px-6 py-2.5 rounded-xl hover:bg-slate-50 transition-all">
-                New Audit
-              </button>
+            ) : (
+              <div className="px-5 py-2.5 bg-emerald-50 border border-emerald-100 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-2xl flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                Pro Active
+              </div>
             )}
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 pt-16 pb-32">
+      <main className="max-w-6xl mx-auto px-4 pt-32 pb-32">
         {view === 'input' && (
           <div className="space-y-12">
             <section className="text-center space-y-6 max-w-4xl mx-auto">
@@ -219,9 +246,9 @@ const AppContent: React.FC = () => {
             </section>
 
             <div className="grid lg:grid-cols-2 gap-8 relative">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between px-2">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
+              <div className="space-y-4 relative">
+                <div className="px-2">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] flex items-center gap-3">
                     <div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
                     Your Experience
                   </label>
@@ -236,7 +263,11 @@ const AppContent: React.FC = () => {
                   onUpgrade={() => triggerCheckout("pro_unlimited")}
                 />
 
-                <div className="group relative bg-white p-2 rounded-[2.5rem] border border-slate-200 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] transition-all focus-within:ring-4 focus-within:ring-indigo-100">
+                <div className="group relative bg-white p-2 rounded-[2.5rem] border border-slate-200 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] transition-all focus-within:ring-4 focus-within:ring-indigo-100 overflow-hidden">
+                    {/* Laser Scanner Animation */}
+                    {state.isAnalyzing && (
+                      <div className="absolute inset-x-0 h-1 bg-indigo-500/50 shadow-[0_0_15px_2px_rgba(99,102,241,0.5)] z-20 animate-[scan_2s_infinite]" />
+                    )}
                     <TextActionOverlay target="resume" onClear={() => setState(prev => ({ ...prev, resume: '' }))} />
                     <textarea
                       ref={resumeRef}
@@ -248,15 +279,20 @@ const AppContent: React.FC = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center justify-between px-2">
-                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] flex items-center gap-2">
+              <div className="space-y-4 relative">
+                <div className="px-2">
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] flex items-center gap-3">
                     <div className="w-1.5 h-1.5 rounded-full bg-violet-500"></div>
                     Target Opportunity
                   </label>
                 </div>
+                {/* Spacer to align with the ResumeSelector's height */}
                 <div className="h-[52px]"></div>
-                <div className="group relative bg-white p-2 rounded-[2.5rem] border border-slate-200 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] transition-all focus-within:ring-4 focus-within:ring-violet-100">
+                <div className="group relative bg-white p-2 rounded-[2.5rem] border border-slate-200 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] transition-all focus-within:ring-4 focus-within:ring-violet-100 overflow-hidden">
+                    {/* Laser Scanner Animation */}
+                    {state.isAnalyzing && (
+                      <div className="absolute inset-x-0 h-1 bg-violet-500/50 shadow-[0_0_15px_2px_rgba(139,92,246,0.5)] z-20 animate-[scan_2s_infinite_reverse]" />
+                    )}
                     <TextActionOverlay target="jd" onClear={() => setState(prev => ({ ...prev, jobDescription: '' }))} />
                     <textarea
                       ref={jdRef}
@@ -282,7 +318,7 @@ const AppContent: React.FC = () => {
               >
                 {state.isAnalyzing ? (
                   <div className="flex flex-col items-center gap-1">
-                    <div className="flex items-center gap-4"><div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" /><span>Crunching Data...</span></div>
+                    <div className="flex items-center gap-4"><div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" /><span>Forensic Extraction...</span></div>
                     <span className="text-[10px] text-indigo-400 font-black uppercase tracking-[0.3em]">{scanStep}</span>
                   </div>
                 ) : (
@@ -320,6 +356,13 @@ const AppContent: React.FC = () => {
           <PathwayView pathways={learningData} onBack={() => setView('report')} />
         )}
       </main>
+
+      <style>{`
+        @keyframes scan {
+          0% { top: 0; }
+          100% { top: 100%; }
+        }
+      `}</style>
     </div>
   );
 };
