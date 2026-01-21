@@ -1,22 +1,18 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-const truncateForTokenSafety = (text: string, maxChars: number = 5000) => {
-  if (text.length <= maxChars) return text;
-  return text.substring(0, maxChars) + "... [truncated]";
-};
+const truncate = (text: string, max: number = 3000) => text.length > max ? text.substring(0, max) + "..." : text;
 
-export const getGeminiInsights = async (resume: string, jd: string, missingKeywords: string[]) => {
-  const safeResume = truncateForTokenSafety(resume);
-  const safeJD = truncateForTokenSafety(jd);
-  
+export const getExecutiveSummary = async (resume: string, jd: string, score: number) => {
   const prompt = `
-    Resume: ${safeResume}
-    JD: ${safeJD}
-    Missing Keywords: ${missingKeywords.join(', ')}
+    Resume: ${truncate(resume)}
+    JD: ${truncate(jd)}
+    Match Score: ${score}%
     
-    Provide 3 actionable tips (bullet points) to better align this resume with the JD. 
-    Focus on how to naturally incorporate missing keywords.
+    Provide a 2-sentence "Recruiter Perspective". 
+    Sentence 1: The honest truth about why this candidate would or wouldn't get an interview based on the JD.
+    Sentence 2: The single most impactful change they should make.
+    Keep it blunt and professional.
   `;
 
   try {
@@ -27,81 +23,22 @@ export const getGeminiInsights = async (resume: string, jd: string, missingKeywo
     });
     return response.text;
   } catch (error) {
-    console.error("Gemini Insights Error:", error);
-    return "Could not generate AI insights.";
+    return "Recruiter summary currently unavailable.";
   }
 };
 
-export const getInterviewTraps = async (missingKeywords: string[], jd: string) => {
+export const getSignalAudit = async (resume: string) => {
   const prompt = `
-    Job Description Context: ${truncateForTokenSafety(jd, 2000)}
-    The candidate is MISSING these critical keywords: ${missingKeywords.slice(0, 5).join(', ')}.
-
-    Predict 2 "Trap Questions" a recruiter might ask to expose these gaps.
-    Return a JSON array of objects with: "question", "reason" (why they ask it), and "suggestedAnswer" (how to pivot even without the skill).
-  `;
-
-  try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              question: { type: Type.STRING },
-              reason: { type: Type.STRING },
-              suggestedAnswer: { type: Type.STRING }
-            },
-            required: ["question", "reason", "suggestedAnswer"]
-          }
-        }
-      }
-    });
-    return JSON.parse(response.text || "[]");
-  } catch (error) {
-    console.error("Gemini Interview Traps Error:", error);
-    return [];
-  }
-};
-
-export const getLearningPathway = async (skill: string) => {
-  const prompt = `
-    The user is missing the skill: "${skill}". 
-    Create a "High-Velocity Edge Plan". 
+    Perform a "Professional Signal Audit" on this resume. 
+    Identify PII risks (emails, phones, locations), legacy technical markers (tech over 10 years old not used in modern stacks), and professional polish issues.
     
-    CRITICAL MANDATE: 
-    1. Project Ideas must be FUN, BOOTCAMP-STYLE, and HIGHLY DEMONSTRABLE (e.g., "Build a CLI Pokédex", "Automate Tinder Swiping", "Personal Portfolio API"). NO DRY ENTERPRISE FILLER.
-    2. Users do not have time for long courses. All recommended resources MUST be under 5 hours.
-    3. Conservative "timeEstimate" (e.g., "4-6 Hours").
-
-    Requirements:
-    1. A "Weekend Sprint" project idea (under 15 words).
-    2. "timeEstimate": A conservative range for a focused session.
-    3. "futureResumeBullet": The power bullet they can use after.
-    4. "resources": A list of 4 items (2 Free, 2 Paid):
-       - Items must be high-impact (crash courses, masterclasses).
-       - For Paid items, include "investmentLevel": "$" (cheap), "$$" (mid), or "$$$" (premium).
-       - Include "duration": e.g. "45m", "2h".
-    5. "fieldGuide": Recommend a short, practical "Field Guide" (book or digital guide) that focused on interview terminology.
-    6. "valueProposition": Why recruiters care.
-    7. "interviewTalkingPoints": 2-3 specific "Ammunition" scripts.
-
-    Return JSON: { 
-      "skill": string, 
-      "projectIdea": string, 
-      "timeEstimate": string,
-      "difficulty": string, 
-      "futureResumeBullet": string, 
-      "valueProposition": string, 
-      "interviewTalkingPoints": string[],
-      "resources": [{ "name": string, "url": string, "type": "Free" | "Paid", "platform": string, "description": string, "duration": string, "investmentLevel": string }],
-      "fieldGuide": { "title": string, "author": string, "amazonUrl": string, "whyItWorks": string }
+    Return JSON:
+    {
+      "score": number,
+      "signals": [{ "signal": string, "type": string, "riskLevel": string, "suggestion": string, "standardEquivalent": string }],
+      "generalAdvice": string
     }
+    Resume: ${truncate(resume)}
   `;
 
   try {
@@ -114,7 +51,46 @@ export const getLearningPathway = async (skill: string) => {
         responseSchema: {
           type: Type.OBJECT,
           properties: {
+            score: { type: Type.NUMBER },
+            signals: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  signal: { type: Type.STRING },
+                  type: { type: Type.STRING },
+                  riskLevel: { type: Type.STRING },
+                  suggestion: { type: Type.STRING },
+                  standardEquivalent: { type: Type.STRING }
+                }
+              }
+            },
+            generalAdvice: { type: Type.STRING }
+          }
+        }
+      }
+    });
+    return JSON.parse(response.text || "{}");
+  } catch (error) {
+    return null;
+  }
+};
+
+export const getLearningPathway = async (skill: string) => {
+  const prompt = `Create a detailed learning plan to master the missing skill: "${skill}". Focus on creating a practical project that can be added to a resume.`;
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: { 
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          required: ["skill", "projectTitle", "projectIdea", "timeEstimate", "difficulty", "futureResumeBullet", "valueProposition", "interviewTalkingPoints", "resources", "fieldGuide"],
+          properties: {
             skill: { type: Type.STRING },
+            projectTitle: { type: Type.STRING },
             projectIdea: { type: Type.STRING },
             timeEstimate: { type: Type.STRING },
             difficulty: { type: Type.STRING },
@@ -132,12 +108,9 @@ export const getLearningPathway = async (skill: string) => {
                   name: { type: Type.STRING },
                   url: { type: Type.STRING },
                   type: { type: Type.STRING },
-                  platform: { type: Type.STRING },
-                  description: { type: Type.STRING },
                   duration: { type: Type.STRING },
                   investmentLevel: { type: Type.STRING }
-                },
-                required: ["name", "url", "type", "platform", "description", "duration"]
+                }
               }
             },
             fieldGuide: {
@@ -145,40 +118,42 @@ export const getLearningPathway = async (skill: string) => {
               properties: {
                 title: { type: Type.STRING },
                 author: { type: Type.STRING },
-                amazonUrl: { type: Type.STRING },
-                whyItWorks: { type: Type.STRING }
-              },
-              required: ["title", "author", "amazonUrl", "whyItWorks"]
+                whyItWorks: { type: Type.STRING },
+                amazonUrl: { type: Type.STRING }
+              }
             }
-          },
-          required: ["skill", "projectIdea", "timeEstimate", "difficulty", "futureResumeBullet", "valueProposition", "interviewTalkingPoints", "resources"]
+          }
         }
       }
     });
     return JSON.parse(response.text || "{}");
-  } catch (error) {
-    console.error("Gemini Learning Pathway Error:", error);
-    return null;
+  } catch (error) { 
+    console.error("Pathway generation failed", error);
+    return null; 
   }
 };
 
-export const rewriteBulletPoint = async (bullet: string, targetKeyword: string, contextJD: string) => {
-  const prompt = `
-    Rewrite this resume bullet to naturally include "${targetKeyword}".
-    Original: "${bullet}"
-    JD Context: "${truncateForTokenSafety(contextJD, 1000)}"
-    Keep it professional, action-oriented, and under 25 words. Focus on achievement.
-  `;
+export const getInterviewTraps = async (missing: string[], jd: string) => {
+  const prompt = `Predict 2 trap questions for missing skills: ${missing.join(', ')}. JD: ${truncate(jd)}. Return JSON.`;
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: { responseMimeType: "application/json" }
+    });
+    return JSON.parse(response.text || "[]");
+  } catch (error) { return []; }
+};
 
+export const rewriteBulletPoint = async (bullet: string, keyword: string, jd: string) => {
+  const prompt = `Rewrite "${bullet}" to include "${keyword}" based on this JD: ${truncate(jd)}. Under 25 words.`;
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt,
     });
-    return response.text?.trim() || "Failed to rewrite.";
-  } catch (error) {
-    console.error("Gemini Rewrite Error:", error);
-    return "AI Rewrite failed.";
-  }
+    return response.text;
+  } catch (error) { return "Rewrite failed."; }
 };
