@@ -29,7 +29,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isPaymentEnabled = false;
 
   useEffect(() => {
-    const savedExpiry = localStorage.getItem('clarify_pro_expiry');
+    const savedExpiry = localStorage.getItem('clarity_pro_expiry');
     if (savedExpiry) {
       const exp = parseInt(savedExpiry);
       if (exp > Date.now()) {

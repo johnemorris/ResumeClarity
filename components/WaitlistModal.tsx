@@ -44,12 +44,12 @@ const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose, featureN
         body: JSON.stringify({
           email: email,
           feature_requested: featureName,
-          source: "Clarify Web App"
+          source: "Clarity Web App"
         })
       });
 
       if (response.ok) {
-        localStorage.setItem('clarify_waitlist_email', email);
+        localStorage.setItem('clarity_waitlist_email', email);
         setSubmitted(true);
       } else {
         throw new Error("Failed to join waitlist. Please try again.");
@@ -144,7 +144,7 @@ const WaitlistModal: React.FC<WaitlistModalProps> = ({ isOpen, onClose, featureN
                    Back to My Report
                  </button>
                  <a 
-                   href="https://www.linkedin.com/sharing/share-offsite/?url=https://clarify-audit.com" 
+                   href="https://www.linkedin.com/sharing/share-offsite/?url=https://clarity-audit.com" 
                    target="_blank" 
                    rel="noopener noreferrer"
                    className="flex items-center justify-center gap-3 text-indigo-600 font-bold hover:underline"

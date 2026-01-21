@@ -33,33 +33,12 @@ export interface ResumeProfile {
   lastUpdated: number;
 }
 
-export interface LearningResource {
-  name: string;
-  url: string;
-  type: 'Free' | 'Paid';
-  platform: string;
-  description: string;
-  duration: string;
-  investmentLevel?: string;
-}
-
-export interface LearningPathway {
-  id?: string;
-  skill: string;
-  projectTitle: string;
-  projectIdea: string;
-  timeEstimate: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  futureResumeBullet: string;
-  valueProposition: string;
-  interviewTalkingPoints: string[];
-  resources: LearningResource[];
-  fieldGuide?: {
-    title: string;
-    author: string;
-    amazonUrl: string;
-    whyItWorks: string;
-  };
+export interface RecruiterSignal {
+  signal: string;
+  type: 'PII/Privacy' | 'Technical Signal' | 'Professional Polish';
+  riskLevel: 'High' | 'Medium' | 'Low';
+  suggestion: string;
+  standardEquivalent: string;
 }
 
 export interface AnalysisSummary {
@@ -70,6 +49,7 @@ export interface AnalysisSummary {
   removedTokens: string[];
   impactScore: number;
   weakWordsFound: ImpactMetric[];
+  executiveSummary?: string;
   calculationBreakdown: {
     hardSkillsScore: number;
     softSignalsScore: number;
@@ -96,6 +76,20 @@ export interface InterviewTrap {
   question: string;
   reason: string;
   suggestedAnswer: string;
+}
+
+export interface LearningPathway {
+  id?: string;
+  skill: string;
+  projectTitle: string;
+  projectIdea: string;
+  timeEstimate: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  futureResumeBullet: string;
+  valueProposition: string;
+  interviewTalkingPoints: string[];
+  resources: any[];
+  fieldGuide?: any;
 }
 
 export interface AppState {

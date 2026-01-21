@@ -98,7 +98,7 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
                         <Tooltip content="Copy the suggested bullet point.">
                           <button 
                             onClick={() => {
-                              navigator.clipboard.writeText(path.futureResumeBullet);
+                              navigator.clipboard.writeText(path.futureResumeBullet || "");
                               alert("Bullet copied!");
                             }}
                             className="flex items-center gap-2.5 text-[10px] font-black text-indigo-600 bg-white uppercase tracking-widest hover:bg-indigo-50 px-5 py-3 rounded-xl transition-all active:scale-95 border border-indigo-100"
@@ -127,7 +127,7 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
                               <div className="flex gap-2 bg-indigo-50/30 p-2.5 rounded-lg border border-indigo-100/50">
                                 <div className="w-1 h-1 rounded-full bg-indigo-400 shrink-0 mt-1.5"></div>
                                 <p className="text-[9px] font-medium leading-relaxed text-slate-600">
-                                  {path.futureResumeBullet}
+                                  {path.futureResumeBullet || "Project details coming soon..."}
                                 </p>
                               </div>
                            </div>
@@ -149,16 +149,16 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
                        <div className="flex items-center gap-3 text-slate-400">
                          <div className="flex items-center gap-1.5">
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                            <span className="text-[9px] font-black uppercase tracking-widest">{path.timeEstimate}</span>
+                            <span className="text-[9px] font-black uppercase tracking-widest">{path.timeEstimate || "2-4 hours"}</span>
                          </div>
                          <div className="w-1 h-1 rounded-full bg-slate-200"></div>
-                         <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest">{path.difficulty}</span>
+                         <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest">{path.difficulty || "Intermediate"}</span>
                        </div>
                     </div>
                     
                     <div className="space-y-3">
                       <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Learning Sprint</div>
-                      <h3 className="text-xl font-bold text-slate-900 leading-snug">"{path.projectIdea}"</h3>
+                      <h3 className="text-xl font-bold text-slate-900 leading-snug">"{path.projectIdea || "Generating strategy..."}"</h3>
                       <button 
                         onClick={() => refreshProject(idx, path.skill)}
                         className="group/skip flex items-center gap-1.5 text-[9px] font-black text-indigo-500 uppercase tracking-widest hover:text-slate-900 transition-colors"
@@ -171,7 +171,7 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
                     <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Recruiter Perspective</div>
                        <p className="text-xs font-bold text-slate-600 leading-relaxed italic">
-                         {path.valueProposition}
+                         {path.valueProposition || "Building technical authority..."}
                        </p>
                     </div>
                   </div>
@@ -197,7 +197,7 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
                     )}
 
                     <div className={`grid gap-2 transition-all duration-700 ${!isPro ? 'opacity-20 blur-sm pointer-events-none' : ''}`}>
-                      {path.resources.map((res, rIdx) => (
+                      {(path.resources || []).map((res, rIdx) => (
                         <a 
                           key={rIdx}
                           href={res.url} 
@@ -217,7 +217,7 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
                                   {res.type === 'Free' ? 'FREE' : res.investmentLevel || '$$'}
                                 </span>
                                 <div className="w-1 h-1 rounded-full bg-slate-200"></div>
-                                <span className="text-[8px] font-bold text-slate-400">{res.duration}</span>
+                                <span className="text-[8px] font-bold text-slate-400">{res.duration || "Self-paced"}</span>
                               </div>
                               <div className="text-xs font-bold text-slate-900 mt-0.5">{res.name}</div>
                             </div>
@@ -236,7 +236,7 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
                     <div className="space-y-6">
                       <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Interview Talking Points</div>
                       <div className="grid gap-3">
-                        {path.interviewTalkingPoints.map((point, pIdx) => (
+                        {(path.interviewTalkingPoints || []).map((point, pIdx) => (
                           <div key={pIdx} className="flex gap-4 items-start p-5 bg-white border border-slate-100 rounded-xl hover:border-indigo-100 transition-all group/li">
                             <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-[8px] font-black group-hover/li:bg-indigo-600 group-hover/li:text-white transition-all shrink-0">
                               {pIdx + 1}
@@ -254,15 +254,15 @@ const PathwayView: React.FC<PathwayViewProps> = ({ pathways, onBack }) => {
                       <div className="relative z-10 space-y-4">
                         <div className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Industry Field Guide</div>
                         <div className="space-y-1">
-                          <h5 className="text-lg font-bold italic tracking-tight leading-tight">{path.fieldGuide?.title}</h5>
-                          <p className="text-[10px] text-slate-400 font-bold">by {path.fieldGuide?.author}</p>
+                          <h5 className="text-lg font-bold italic tracking-tight leading-tight">{path.fieldGuide?.title || "Recommended Reading"}</h5>
+                          <p className="text-[10px] text-slate-400 font-bold">by {path.fieldGuide?.author || "Expert Source"}</p>
                         </div>
                         <p className="text-[11px] text-slate-300 leading-relaxed font-medium">
-                          {path.fieldGuide?.whyItWorks}
+                          {path.fieldGuide?.whyItWorks || "Master the theoretical foundations of this core requirement."}
                         </p>
                       </div>
                       <a 
-                        href={path.fieldGuide?.amazonUrl} 
+                        href={path.fieldGuide?.amazonUrl || "#"} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="relative z-10 mt-6 w-full py-3 bg-white/10 hover:bg-white text-white hover:text-slate-950 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-2 border border-white/10"
