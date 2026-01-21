@@ -26,7 +26,6 @@ export interface Plan {
   durationHours: number;
 }
 
-// Define the ResumeProfile interface used for managing multiple resume versions
 export interface ResumeProfile {
   id: string;
   name: string;
@@ -47,6 +46,7 @@ export interface LearningResource {
 export interface LearningPathway {
   id?: string;
   skill: string;
+  projectTitle: string;
   projectIdea: string;
   timeEstimate: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
@@ -62,6 +62,20 @@ export interface LearningPathway {
   };
 }
 
+export interface ModernitySignal {
+  signal: string;
+  type: 'Legacy Tech' | 'Date Anchor' | 'Methodology';
+  riskLevel: 'High' | 'Medium' | 'Low';
+  suggestion: string;
+  modernEquivalent: string;
+}
+
+export interface ModernityAnalysis {
+  score: number;
+  signals: ModernitySignal[];
+  generalAdvice: string;
+}
+
 export interface AnalysisSummary {
   score: number;
   totalJDKeywords: number;
@@ -70,6 +84,8 @@ export interface AnalysisSummary {
   removedTokens: string[];
   impactScore: number;
   weakWordsFound: ImpactMetric[];
+  modernityScore?: number;
+  modernitySignals?: ModernitySignal[];
   calculationBreakdown: {
     hardSkillsScore: number;
     softSignalsScore: number;

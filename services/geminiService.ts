@@ -32,6 +32,71 @@ export const getGeminiInsights = async (resume: string, jd: string, missingKeywo
   }
 };
 
+export const getModernityAnalysis = async (resume: string) => {
+  const prompt = `
+    Analyze the following resume for "Legacy Signals" that might inadvertently trigger age bias in the 2026 tech market.
+    
+    Identify:
+    1. Deprecated technologies (e.g., COBOL, Silverlight, legacy versions of frameworks).
+    2. Date Anchors (e.g., graduation years from decades ago, jobs from the 90s/early 2000s that could be summarized).
+    3. Outdated terminology (e.g., "Webmaster", "On-prem server management" without cloud context).
+
+    Return a JSON object:
+    {
+      "score": number (0-100, 100 being most modern/era-aligned),
+      "signals": [
+        {
+          "signal": "original text or tech",
+          "type": "Legacy Tech" | "Date Anchor" | "Methodology",
+          "riskLevel": "High" | "Medium" | "Low",
+          "suggestion": "How to pivot or rephrase",
+          "modernEquivalent": "The 2026 equivalent term"
+        }
+      ],
+      "generalAdvice": "A summary of how the candidate can appear 'current' while retaining seniority."
+    }
+
+    Resume: ${truncateForTokenSafety(resume, 3000)}
+  `;
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-pro-preview',
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            score: { type: Type.NUMBER },
+            signals: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  signal: { type: Type.STRING },
+                  type: { type: Type.STRING },
+                  riskLevel: { type: Type.STRING },
+                  suggestion: { type: Type.STRING },
+                  modernEquivalent: { type: Type.STRING }
+                },
+                required: ["signal", "type", "riskLevel", "suggestion", "modernEquivalent"]
+              }
+            },
+            generalAdvice: { type: Type.STRING }
+          },
+          required: ["score", "signals", "generalAdvice"]
+        }
+      }
+    });
+    return JSON.parse(response.text || "{}");
+  } catch (error) {
+    console.error("Modernity Analysis Error:", error);
+    return null;
+  }
+};
+
 export const getInterviewTraps = async (missingKeywords: string[], jd: string) => {
   const prompt = `
     Job Description Context: ${truncateForTokenSafety(jd, 2000)}
@@ -44,7 +109,7 @@ export const getInterviewTraps = async (missingKeywords: string[], jd: string) =
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -74,25 +139,9 @@ export const getLearningPathway = async (skill: string) => {
     The user is missing the skill: "${skill}". 
     Create a "High-Velocity Edge Plan". 
     
-    CRITICAL MANDATE: 
-    1. Project Ideas must be FUN, BOOTCAMP-STYLE, and HIGHLY DEMONSTRABLE (e.g., "Build a CLI Pokédex", "Automate Tinder Swiping", "Personal Portfolio API"). NO DRY ENTERPRISE FILLER.
-    2. Users do not have time for long courses. All recommended resources MUST be under 5 hours.
-    3. Conservative "timeEstimate" (e.g., "4-6 Hours").
-
-    Requirements:
-    1. A "Weekend Sprint" project idea (under 15 words).
-    2. "timeEstimate": A conservative range for a focused session.
-    3. "futureResumeBullet": The power bullet they can use after.
-    4. "resources": A list of 4 items (2 Free, 2 Paid):
-       - Items must be high-impact (crash courses, masterclasses).
-       - For Paid items, include "investmentLevel": "$" (cheap), "$$" (mid), or "$$$" (premium).
-       - Include "duration": e.g. "45m", "2h".
-    5. "fieldGuide": Recommend a short, practical "Field Guide" (book or digital guide) that focused on interview terminology.
-    6. "valueProposition": Why recruiters care.
-    7. "interviewTalkingPoints": 2-3 specific "Ammunition" scripts.
-
     Return JSON: { 
       "skill": string, 
+      "projectTitle": string,
       "projectIdea": string, 
       "timeEstimate": string,
       "difficulty": string, 
@@ -107,7 +156,7 @@ export const getLearningPathway = async (skill: string) => {
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -115,6 +164,7 @@ export const getLearningPathway = async (skill: string) => {
           type: Type.OBJECT,
           properties: {
             skill: { type: Type.STRING },
+            projectTitle: { type: Type.STRING },
             projectIdea: { type: Type.STRING },
             timeEstimate: { type: Type.STRING },
             difficulty: { type: Type.STRING },
@@ -151,7 +201,7 @@ export const getLearningPathway = async (skill: string) => {
               required: ["title", "author", "amazonUrl", "whyItWorks"]
             }
           },
-          required: ["skill", "projectIdea", "timeEstimate", "difficulty", "futureResumeBullet", "valueProposition", "interviewTalkingPoints", "resources"]
+          required: ["skill", "projectTitle", "projectIdea", "timeEstimate", "difficulty", "futureResumeBullet", "valueProposition", "interviewTalkingPoints", "resources"]
         }
       }
     });
